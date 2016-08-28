@@ -32,9 +32,7 @@ view model =
 viewControls : Model -> Html Controller.Msg
 viewControls model =
   div [] 
-    [ button [ onClick Controller.Next
-              , autofocus <| perAnswer model True False    
-              , disabled <| perAnswer model False True ] [ text "Next" ]]
+    [ button [ onClick Controller.Next ] [ text "Next" ]]
 
 viewTest : Model -> Html Controller.Msg
 viewTest model =

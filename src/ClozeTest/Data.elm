@@ -12,6 +12,7 @@ sampleUrl : String
 sampleUrl = 
   "http://localhost:8000/src/ClozeTest/sample.txt"
 
+-- XXX: We shouldn't need this if parser had proper error handing.
 defaultSentence : Sentence
 defaultSentence = "No sentences available" |> Sentence.parse
 
@@ -28,8 +29,6 @@ parse =
     >> List.map Sentence.parse 
     >> withDefault [defaultSentence]
 
--- FIXME regex eats up last letter of the last word. and doesn't split across para
--- Make parser to be strict! And add error reporting.
 splitParagraph : String -> List String
 splitParagraph paragraph =
   splitAt paragraph "([^\\. ]\\.\\s+)"
@@ -42,17 +41,12 @@ splitAt s re =
 
 reconstructSplits : List String -> List String
 reconstructSplits splits =
-  case (List.length splits) > 1 of
-    False ->
-      splits
-    True ->
-      let 
-        firstTwo = splits
-                   |> List.take 2
-                   |> List.foldr (++) ""
-        rest     = splits
-                   |> List.drop 2
-                   |> reconstructSplits
-      in
-        firstTwo :: rest
-    
+  if (List.length splits) < 2 then
+    splits
+  else
+    let
+      firstTwo = splits |> List.take 2 |> List.foldr (++) ""
+      rest     = splits |> List.drop 2 |> reconstructSplits
+    in
+      firstTwo :: rest
+  
