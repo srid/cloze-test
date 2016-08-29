@@ -4,10 +4,19 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
 
+import Material
+import Material.Scheme
+import Material.Button as Button
+import Material.Textfield as Textfield
+import Material.Layout as Layout
+
 import ClozeTest.Model exposing (..)
 import ClozeTest.Controller as Controller
 import ClozeTest.Sentence exposing (Sentence)
 import ClozeTest.Sentence as Sentence
+
+type alias Mdl = 
+  Material.Model 
 
 perAnswer : Model -> a -> a -> a
 perAnswer model correct wrong =
@@ -17,22 +26,59 @@ perAnswer model correct wrong =
 
 view : Model -> Html Controller.Msg 
 view model =
-  div [] [
-    h1 [] [ text "Cloze Test"]
-  , span [] [ text "Data source:" ]
-  , input [ value model.dataSource
-          , style [("width", "80%")] 
-          , onInput Controller.LoadData ] []
-  , h2 [] [text "Current test"]
-  , viewTest model
-  , hr [] []
-  , viewControls model
-  ]
+  Layout.render Controller.Mdl model.mdl
+    [ Layout.fixedHeader
+    ]
+    { header = [ div [] 
+                  [ h1 [] [ text "Cloze Test : " 
+                          , text <| toString model.state ]
+                  ]
+               ]
+    , drawer = []
+    , tabs = ([], [])
+    , main = [ div []
+              [ Textfield.render Controller.Mdl [2] model.mdl
+                  [ Textfield.label "Data source"
+                  , Textfield.floatingLabel
+                  , Textfield.text'
+                  , Textfield.value model.dataSource
+                  , Textfield.onInput Controller.LoadData 
+                  ] 
+              , h2 [] [text "Current test"]
+              , viewTest model
+              , hr [] []
+              , viewControls model
+              ] ]
+    }
+    |> Material.Scheme.top
+    
+view2 model =
+  div [] 
+    [ h1 [] [ text "Cloze Test"]
+    , p [] [ text <| toString model.state ]
+    , span [] [ text "Data source:" ]
+    , input [ value model.dataSource
+            , style [("width", "80%")]
+            , disabled <| model.state == Loading 
+            , onInput Controller.LoadData ] []
+    , h2 [] [text "Current test"]
+    , viewTest model
+    , hr [] []
+    , viewControls model
+    ]
+  |> Material.Scheme.top
 
 viewControls : Model -> Html Controller.Msg
 viewControls model =
   div [] 
-    [ button [ onClick Controller.Next ] [ text "Next" ]]
+    [ Button.render Controller.Mdl [0] model.mdl 
+        [ Button.raised
+        , Button.colored
+        , Button.ripple
+        , Button.onClick Controller.Next
+        ]
+        [ text "Next" ]
+    ]
 
 viewTest : Model -> Html Controller.Msg
 viewTest model =
@@ -53,10 +99,14 @@ viewPart model part =
 viewCloze : Model -> String -> Html Controller.Msg
 viewCloze model cloze =
   let 
-    colorStyle = ("color", perAnswer model "darkgreen" "auto")
+    label = if model.userAnswer == model.cloze then
+              "Correct!"
+            else
+              "What comes here?"
   in
-    input [ title cloze
-          , style [colorStyle]
-          , onInput Controller.Answer
-          , autofocus <| perAnswer model False True
-          , value model.userAnswer ] [ ]
+    Textfield.render Controller.Mdl [1] model.mdl
+      [ Textfield.label label
+      , Textfield.floatingLabel
+      , Textfield.onInput Controller.Answer
+      , Textfield.autofocus
+      , Textfield.value model.userAnswer ]

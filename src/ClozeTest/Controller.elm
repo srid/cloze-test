@@ -3,6 +3,7 @@ module ClozeTest.Controller exposing (..)
 import Http
 import Task
 import Random
+import Material
 
 import ClozeTest.Test exposing (Test)
 import ClozeTest.Test as Test
@@ -19,6 +20,7 @@ type Msg
   | Answer String
   | ShowTest Test
   | Next
+  | Mdl (Material.Msg Msg)
 
 getData : Model -> Cmd Msg
 getData model =
@@ -48,6 +50,8 @@ update msg model =
       (model, generateTest model)
     ShowTest test ->
       (Model.changeTest test model, Cmd.none)
+    Mdl msg' -> 
+      Material.update msg' model
 
 andThen : (Model -> Cmd Msg) -> Model -> (Model, Cmd Msg)
 andThen f model =

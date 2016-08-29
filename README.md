@@ -13,7 +13,7 @@ open http://localhost:8000/src/ClozeTest/Main.elm
 
 - [x] Type and parser for sentences
 - [x] UI interaction & feedback on cloze tests
-- [ ] Finalize UI style
+- [ ] Implement sexy UI (elm-mdl?)
 
 More tasks:
 

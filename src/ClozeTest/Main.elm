@@ -1,24 +1,25 @@
-import Html.App as Html
+import Html.App as App
 
-import ClozeTest.Data as Data
+import Material
+
 import ClozeTest.Controller as Controller
 import ClozeTest.View exposing (view)
 import ClozeTest.Model exposing (..)
+import ClozeTest.Data as Data
 
 main : Program Never
 main =
-  Html.program 
+  App.program 
     { init = init
     , view = view
     , update = Controller.update
-    , subscriptions = subscriptions 
+    , subscriptions = Material.subscriptions Controller.Mdl  
     }
 
-init : (Model, Cmd Controller.Msg)
+init : ( Model, Cmd Controller.Msg )
 init =
-  emptyModel
-  |> Controller.update (Controller.LoadData Data.sampleUrl)
-
-subscriptions : Model -> Sub Controller.Msg
-subscriptions model =
-  Sub.none
+  let 
+    model = emptyModel |> changeDataSource Data.sampleUrl
+  in
+    -- XXX: not sure if good idea to explicitly pass model here. 
+    model ! [Controller.getData model, Material.init Controller.Mdl]
